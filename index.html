@@ -121,6 +121,50 @@
             -o-user-drag: none;
             user-drag: none;
         }
+#replayButton {
+    position: fixed !important; /* 使用 fixed 定位 */
+    bottom: 20px !important;   /* 距离底部20px */
+    left: 50% !important;      /* 水平居中 */
+    transform: translateX(-50%) !important; /* 精确居中 */
+    padding: 10px 20px;        /* 适当的内边距 */
+    background: rgba(255, 255, 255, 0.7);
+    font-size: 18px;          /* 合适的字体大小 */
+    color: black;
+    cursor: pointer;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+    display: none;           /* 初始状态隐藏 */
+    /* 移除之前的最大宽度和高度限制 */
+    width: auto;            /* 自适应内容宽度 */
+    height: auto;           /* 自适应内容高度 */
+    line-height: normal;    /* 正常行高 */
+    text-align: center;
+    white-space: nowrap;
+}
+
+#replayButton:active {
+    transform: translateX(-50%) translateY(2px) !important; /* 保持水平居中的同时添加按下效果 */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+        #playButton, #replayButton {
+    /* 移除任何可能影响位置的共享样式 */
+    position: fixed;
+    transform: none;
+}
+
+#playButton {
+    /* 保持 playButton 在中间的样式 */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
     </style>
     <script>
         // 禁用缩放
@@ -180,6 +224,8 @@
     <div id="rightButton" class="button">→</div>
     <div id="jumpButton" class="button">↑</div>
     <div id="shootButton" class="button">●</div>
+    <!-- 添加 replay 按钮，初始状态为隐藏 -->
+<div id="replayButton">Replay</div>
     <script src="game.js"></script>
 </body>
 </html>
