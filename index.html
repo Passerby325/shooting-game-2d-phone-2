@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>Contra-like Shooting Game</title>
+    <style>
+        * {
+            /* 为所有元素添加不可选中属性 */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        canvas {
+            background: #000;
+            display: block;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        #time {
+            text-align: center;
+            font-size: 24px;
+            color: orange;
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .button {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: black;
+            touch-action: manipulation;
+        }
+
+        #leftButton {
+            bottom: 80px;
+            left: 20px;
+        }
+
+        #rightButton {
+            bottom: 80px;
+            left: 100px;
+        }
+
+        #jumpButton {
+            bottom: 80px;
+            right: 100px;
+        }
+
+        #shootButton {
+            bottom: 80px;
+            right: 20px;
+        }
+
+        #playButton {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 24px;
+            color: black;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        #winConditions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            color: white;
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        #killCount {
+            text-align: center;
+            font-size: 24px;
+            color: orange;
+            position: absolute;
+            top: 50px;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        img {
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+        }
+#replayButton {
+    position: fixed; /* 使用 fixed 而不是 absolute 以确保按钮始终在视口右上角 */
+    top: 10px; /* 距离顶部的距离 */
+    right: 10px; /* 距离右边的距离 */
+    transform: none; /* 移除之前的居中变换 */
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.7);
+    font-size: 20px;
+    color: black;
+    cursor: pointer;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+}
+
+#replayButton:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+        #playButton, #replayButton {
+    /* 移除任何可能影响位置的共享样式 */
+    position: fixed;
+    transform: none;
+}
+
+#playButton {
+    /* 保持 playButton 在中间的样式 */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+    </style>
+    <script>
+        // 禁用缩放
+        document.addEventListener('touchmove', function(event) {
+            if (event.scale !== 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        // 禁用双击缩放
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // 禁用多指缩放
+        document.addEventListener('gesturestart', function(event) {
+            event.preventDefault();
+        });
+        document.addEventListener('gesturechange', function(event) {
+            event.preventDefault();
+        });
+        document.addEventListener('gestureend', function(event) {
+            event.preventDefault();
+        });
+
+        // 禁用文本选择
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // 禁用拖拽
+        document.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // 禁用右键菜单
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+    </script>
+</head>
+<body>
+    <div id="time">Time: 0s</div>
+    <div id="killCount">Enemies Killed: 0</div>
+    <div id="winConditions">Victory Conditions: Kill 20 enemies and survive for 90 seconds.</div>
+    <div id="playButton">Play</div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="leftButton" class="button">←</div>
+    <div id="rightButton" class="button">→</div>
+    <div id="jumpButton" class="button">↑</div>
+    <div id="shootButton" class="button">●</div>
+    <!-- 添加 replay 按钮，初始状态为隐藏 -->
+<div id="replayButton" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 20px; background: rgba(255, 255, 255, 0.5); font-size: 24px; color: black; cursor: pointer; z-index: 1000;">Replay</div>
+    <script src="game.js"></script>
+</body>
+</html>
